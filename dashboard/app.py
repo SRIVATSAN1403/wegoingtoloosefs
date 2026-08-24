@@ -1,7 +1,7 @@
 """
-PyroTrace Streamlit Dashboard Application
+PyroTrace Streamlit Dashboard
 "The AI that finds the frayed wire, not just the fire."
-Edge-Native Anomaly Detection & Causal Root Cause Analyzer.
+Designed according to the Steep Editorial Light Design System (design.md).
 """
 
 import sys
@@ -10,7 +10,7 @@ import time
 import pandas as pd
 import streamlit as st
 
-# Add project root directory to path to enable package imports
+# Add project root to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.ingestion import SerialIngestor
@@ -22,98 +22,150 @@ from dashboard.visualizations import (
     create_causal_flow_chart
 )
 
-# Page Setup
+# Page Setup - Light Theme Editorial Layout
 st.set_page_config(
-    page_title="PyroTrace | Edge AI Root Cause Analyzer",
-    page_icon="🔥",
+    page_title="PyroTrace | Edge AI Investigator",
+    page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom Dark Theme Styling
+# Inject Steep Editorial Design Tokens & Styling
 st.markdown("""
     <style>
-        /* Base Canvas & Fonts */
-        .stApp {
-            background-color: #0e1117;
-            color: #c9d1d9;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&family=Inter:wght@400;450;500;600&display=swap');
+
+        /* Steep Color Tokens */
+        :root {
+            --color-ink-black: #17191c;
+            --color-paper-white: #ffffff;
+            --color-mist-gray: #f2f2f3;
+            --color-slate-gray: #777b86;
+            --color-ash-gray: #979799;
+            --color-blush-peach: #fbe1d1;
+            --color-sienna-brown: #5d2a1a;
+            --color-hairline: #ececec;
         }
 
-        /* Metric Cards */
+        /* Page Canvas */
+        .stApp {
+            background-color: #ffffff !important;
+            color: #17191c !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        /* Headers - Serif Signifier Style */
+        h1, h2, h3, .serif-heading {
+            font-family: 'Source Serif 4', Georgia, serif !important;
+            font-weight: 400 !important;
+            color: #17191c !important;
+            letter-spacing: -0.66px !important;
+        }
+
+        /* Subhead Muted Text */
+        .subhead-text {
+            color: #777b86;
+            font-size: 17px;
+            font-weight: 400;
+            line-height: 1.4;
+            margin-bottom: 24px;
+        }
+
+        /* Metric Cards - Floating White Artifacts */
         div[data-testid="metric-container"] {
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 12px;
-            padding: 14px 18px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            background-color: #ffffff !important;
+            border: 1px solid #ececec !important;
+            border-radius: 20px !important;
+            padding: 16px 20px !important;
+            box-shadow: 0 0 0 1px rgba(4, 23, 43, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.06) !important;
         }
         div[data-testid="metric-container"] label {
-            color: #8b949e !important;
+            color: #979799 !important;
             font-size: 14px !important;
-            font-weight: 500;
+            font-weight: 400 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         div[data-testid="metric-container"] div[data-testid="stMetricValue"] {
-            color: #f0f6fc !important;
-            font-size: 26px !important;
-            font-weight: 600;
+            color: #17191c !important;
+            font-size: 24px !important;
+            font-weight: 500 !important;
         }
 
-        /* Diagnostic Panel Card */
-        .diag-card {
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 14px;
-            padding: 20px;
+        /* Neutral Mist Gray Card */
+        .neutral-card {
+            background-color: #f2f2f3;
+            border-radius: 24px;
+            padding: 24px;
             margin-bottom: 20px;
         }
-        .diag-card-critical {
-            background-color: #1c1214;
-            border: 1px solid #f85149;
-            border-radius: 14px;
-            padding: 20px;
+
+        /* Accent Blush Peach Card */
+        .accent-peach-card {
+            background-color: #fbe1d1;
+            color: #5d2a1a !important;
+            border-radius: 24px;
+            padding: 28px;
             margin-bottom: 20px;
         }
-        .status-badge-ok {
-            background-color: rgba(46, 160, 67, 0.2);
-            color: #3fb950;
-            border: 1px solid #2ea043;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 13px;
+        .accent-peach-card h3, .accent-peach-card h4 {
+            color: #5d2a1a !important;
+            font-family: 'Source Serif 4', Georgia, serif !important;
+            font-weight: 400 !important;
+            margin-top: 0;
         }
-        .status-badge-alert {
-            background-color: rgba(248, 81, 73, 0.2);
-            color: #f85149;
-            border: 1px solid #f85149;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 13px;
+
+        /* Floating Product Artifact Surface */
+        .artifact-card {
+            background-color: #ffffff;
+            border-radius: 24px;
+            border: 1px solid #ececec;
+            box-shadow: 0 0 0 1px rgba(4,23,43,0.05), 0 20px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.04);
+            padding: 24px;
+            margin-bottom: 20px;
         }
-        
-        /* Action Box */
-        .action-box {
-            background-color: #1f242c;
-            border-left: 4px solid #58a6ff;
-            border-radius: 6px;
-            padding: 12px 16px;
-            margin-top: 10px;
-            color: #e6edf3;
+
+        /* Category Label */
+        .category-tag {
+            color: #979799;
             font-size: 14px;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
         }
 
-        /* Sidebar Customization */
+        /* Pill Buttons */
+        .pill-badge {
+            background-color: #17191c;
+            color: #ffffff !important;
+            border-radius: 9999px;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 400;
+            display: inline-block;
+        }
+        .pill-badge-ghost {
+            background-color: transparent;
+            color: #17191c !important;
+            border: 1px solid #17191c;
+            border-radius: 9999px;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 400;
+            display: inline-block;
+        }
+
+        /* Sidebar Styling */
         section[data-testid="stSidebar"] {
-            background-color: #161b22;
-            border-right: 1px solid #30363d;
+            background-color: #fafafb !important;
+            border-right: 1px solid #ececec !important;
         }
     </style>
 """, unsafe_allow_html=True)
 
 
-# Initialize Session State & Background Services
+# Initialize Ingestion & AI Engine Services
 if "ingestor" not in st.session_state:
     ingestor = SerialIngestor(port="COM15", window_seconds=60)
     ingestor.start()
@@ -130,24 +182,24 @@ if "causal_engine" not in st.session_state:
 
 # Sidebar Controls
 with st.sidebar:
-    st.image("https://img.icons8.com/color/96/000000/fire-element.png", width=60)
-    st.title("PyroTrace Control")
+    st.markdown('<div class="category-tag">SYSTEM SETUP</div>', unsafe_allow_html=True)
+    st.title("PyroTrace")
     st.caption("Edge-Native AI Investigator")
     st.markdown("---")
 
-    # Connection Status Indicator
+    # Connection Status Pill Badges
     hw_connected = ingestor.is_hardware_connected()
     if hw_connected:
-        st.markdown('<span class="status-badge-ok">🟢 COM15 HARDWARE CONNECTED</span>', unsafe_allow_html=True)
+        st.markdown('<span class="pill-badge">COM15 Hardware Live</span>', unsafe_allow_html=True)
     else:
-        st.markdown('<span class="status-badge-ok">⚡ EDGE SIMULATION FALLBACK</span>', unsafe_allow_html=True)
-    
+        st.markdown('<span class="pill-badge-ghost">Edge Simulation Active</span>', unsafe_allow_html=True)
+
     st.markdown("<br>", unsafe_allow_html=True)
-    st.subheader("Physical / Synthetic Demo Controls")
-    st.write("Inject simulated hardware faults to test the AI Causal Engine in real time:")
+    st.markdown('<div class="category-tag">SIMULATION & DEMO</div>', unsafe_allow_html=True)
+    st.write("Inject simulated physical fault vectors to test real-time causal tracing:")
 
     fault_option = st.radio(
-        "Select Hardware Operational State:",
+        "Select Operational Mode:",
         options=[
             "0: Normal Baseline",
             "1: Thermal Spike (Heatsink Detachment)",
@@ -157,39 +209,36 @@ with st.sidebar:
         index=0
     )
 
-    # Update fault mode
     selected_mode = int(fault_option.split(":")[0])
     ingestor.set_fault_mode(selected_mode)
 
     st.markdown("---")
-    auto_refresh = st.checkbox("Auto-Refresh Dashboard (1s)", value=True)
-    if st.button("Refresh Stream Manual"):
+    auto_refresh = st.checkbox("Auto-Refresh (1s)", value=True)
+    if st.button("Refresh Stream"):
         st.rerun()
 
     st.markdown("---")
-    st.caption("Neural X | Build Beyond Boundaries")
+    st.caption("Steep Editorial Design System | Neural X")
 
 
-# Top Header Banner
+# Hero Header Section
 col_head1, col_head2 = st.columns([3, 1])
 with col_head1:
-    st.title("PyroTrace Diagnostic Panel")
-    st.markdown("*\"The AI that finds the frayed wire, not just the fire.\"*")
+    st.markdown('<div class="category-tag">HARDWARE TELEMETRY & CAUSAL INTELLIGENCE</div>', unsafe_allow_html=True)
+    st.markdown("<h1>PyroTrace Edge Investigator</h1>", unsafe_allow_html=True)
+    st.markdown('<div class="subhead-text">The AI that finds the frayed wire, not just the fire. Operating 100% offline over USB COM15.</div>', unsafe_allow_html=True)
 
 with col_head2:
     st.markdown("<br>", unsafe_allow_html=True)
-    st.caption("Target Transport: **USB COM15 (115200 Baud)**")
-    st.caption("Buffer Window: **60s Rolling Memory**")
+    st.markdown('<span class="pill-badge">Air-Gapped Processing</span>', unsafe_allow_html=True)
+    st.markdown('<span class="pill-badge-ghost">60s Rolling Window</span>', unsafe_allow_html=True)
 
 
-# Fetch Latest Telemetry Buffer & Process AI Analytics
+# Fetch Data & Run AI Engine
 df_buffer = ingestor.get_buffer()
-
-# Run Anomaly Detection (Isolation Forest)
 detector = st.session_state["detector"]
 df_analyzed = detector.fit_predict(df_buffer)
 
-# Run Causal Engine Analysis
 causal_engine = st.session_state["causal_engine"]
 causal_result = causal_engine.analyze_root_cause(df_analyzed)
 
@@ -209,73 +258,83 @@ with col_m3:
 with col_m4:
     if causal_result["has_anomaly"]:
         st.markdown(f'''
-            <div style="background-color:#2c1517; border:1px solid #f85149; border-radius:12px; padding:12px; text-align:center;">
-                <span style="color:#f85149; font-weight:bold; font-size:14px;">⚠️ SYSTEM ANOMALY</span><br>
-                <span style="color:#ffffff; font-size:18px; font-weight:600;">{causal_result["root_cause_metric"].upper() if causal_result["root_cause_metric"] else "FAULT"}</span>
+            <div style="background-color:#fbe1d1; border-radius:20px; padding:14px 18px; text-align:center;">
+                <span style="color:#5d2a1a; font-weight:600; font-size:12px; text-transform:uppercase;">Anomaly Flagged</span><br>
+                <span style="color:#5d2a1a; font-size:20px; font-weight:600; font-family:'Source Serif 4', Georgia, serif;">{causal_result["root_cause_metric"].upper() if causal_result["root_cause_metric"] else "ALERT"}</span>
             </div>
         ''', unsafe_allow_html=True)
     else:
         st.markdown('''
-            <div style="background-color:#13231b; border:1px solid #2ea043; border-radius:12px; padding:12px; text-align:center;">
-                <span style="color:#3fb950; font-weight:bold; font-size:14px;">STATUS NOMINAL</span><br>
-                <span style="color:#ffffff; font-size:18px; font-weight:600;">ALL SYSTEMS OK</span>
+            <div style="background-color:#f2f2f3; border-radius:20px; padding:14px 18px; text-align:center;">
+                <span style="color:#979799; font-weight:600; font-size:12px; text-transform:uppercase;">Status</span><br>
+                <span style="color:#17191c; font-size:20px; font-weight:500;">Nominal Baseline</span>
             </div>
         ''', unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
 
-# Main Content Layout: 2 Columns (Telemetry Feeds vs Root Cause Diagnostics)
+# Main Grid Layout (2 Columns)
 col_left, col_right = st.columns([1.5, 1.0])
 
 with col_left:
-    st.subheader("📈 Live Sensor Telemetry (Rolling 60s)")
+    st.markdown('<div class="artifact-card">', unsafe_allow_html=True)
+    st.markdown('<div class="category-tag">REAL-TIME FEEDS</div>', unsafe_allow_html=True)
+    st.markdown('<h3 style="margin-top:0;">Live Telemetry & Outlier Overlays</h3>', unsafe_allow_html=True)
     fig_telemetry = create_telemetry_chart(df_analyzed)
     st.plotly_chart(fig_telemetry, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with col_right:
-    st.subheader("🔍 AI Root Cause Diagnostics")
-    
     if causal_result["has_anomaly"]:
         st.markdown(f'''
-            <div class="diag-card-critical">
-                <h4 style="color:#f85149; margin-top:0;">🚨 {causal_result["root_cause_title"]}</h4>
-                <p style="color:#8b949e; font-size:13px;">Diagnostic Confidence: <b>{causal_result["confidence"]*100:.1f}%</b></p>
-                <hr style="border-color:#30363d;">
-                <p><b>Propagated Failure Sequence:</b></p>
+            <div class="accent-peach-card">
+                <div style="color:#5d2a1a; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">ROOT CAUSE DIAGNOSTIC</div>
+                <h3 style="margin-top:4px; margin-bottom:8px; color:#5d2a1a;">{causal_result["root_cause_title"]}</h3>
+                <p style="color:#5d2a1a; font-size:14px; margin-bottom:16px;">Confidence: <b>{causal_result["confidence"]*100:.1f}%</b></p>
+                <hr style="border-color:rgba(93,42,26,0.2);">
+                <p style="font-weight:500; color:#5d2a1a;">Cascading Propagation Sequence:</p>
             </div>
         ''', unsafe_allow_html=True)
 
-        # Causal Chain Visualization
+        # Horizontal Causal Chain Graph
+        st.markdown('<div class="artifact-card">', unsafe_allow_html=True)
         fig_causal = create_causal_flow_chart(causal_result["propagation_chain"])
         st.plotly_chart(fig_causal, use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-        # Prescriptive Recommendation
+        # Prescriptive Recommendation Card
         st.markdown(f'''
-            <div class="action-box">
-                <b>🛠️ Prescriptive Recommendation:</b><br>
-                {causal_result["recommended_action"]}
-            </div>
-        ''', unsafe_allow_html=True)
-    else:
-        st.markdown('''
-            <div class="diag-card">
-                <h4 style="color:#3fb950; margin-top:0;">✅ All Systems Nominal</h4>
-                <p style="color:#8b949e; font-size:13px;">Isolation Forest score stable | Zero threshold breaches</p>
-                <p style="font-size:14px; color:#c9d1d9;">
-                    The telemetry stream is balanced. Microcontroller inputs, fan speed tachometer, and thermal dissipation levels are operating within continuous baseline limits.
+            <div class="neutral-card">
+                <div class="category-tag">RECOMMENDED ACTION</div>
+                <p style="color:#17191c; font-size:15px; line-height:1.5;">
+                    <b>{causal_result["recommended_action"]}</b>
                 </p>
             </div>
         ''', unsafe_allow_html=True)
 
-        # Render nominal gauges
+    else:
+        st.markdown('''
+            <div class="neutral-card">
+                <div class="category-tag">DIAGNOSTIC ANALYSIS</div>
+                <h3 style="margin-top:4px;">All Systems Nominal</h3>
+                <p style="color:#777b86; font-size:15px; line-height:1.5;">
+                    Sensors are within baseline bounds. Continuous Isolation Forest scoring confirms balanced thermal dissipation and steady fan tachometer readings.
+                </p>
+            </div>
+        ''', unsafe_allow_html=True)
+
+        # Nominal Indicator Gauges
+        st.markdown('<div class="artifact-card">', unsafe_allow_html=True)
+        st.markdown('<div class="category-tag">HARDWARE GAUGES</div>', unsafe_allow_html=True)
         g_col1, g_col2, g_col3 = st.columns(3)
         with g_col1:
-            st.plotly_chart(create_gauge_chart(temp_val, 20, 100, "Temp", "°C", "#ff7b72"), use_container_width=True)
+            st.plotly_chart(create_gauge_chart(temp_val, 20, 100, "Temperature", "°C", "#5d2a1a"), use_container_width=True)
         with g_col2:
-            st.plotly_chart(create_gauge_chart(rpm_val, 0, 5000, "Fan Speed", "RPM", "#58a6ff"), use_container_width=True)
+            st.plotly_chart(create_gauge_chart(rpm_val, 0, 5000, "Fan Speed", "RPM", "#17191c"), use_container_width=True)
         with g_col3:
-            st.plotly_chart(create_gauge_chart(cpu_val, 0, 100, "CPU Load", "%", "#d2a8ff"), use_container_width=True)
+            st.plotly_chart(create_gauge_chart(cpu_val, 0, 100, "CPU Load", "%", "#777b86"), use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
 
 # Auto-refresh loop
