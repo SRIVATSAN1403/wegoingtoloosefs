@@ -1,76 +1,48 @@
-# Walkthrough — `neuralX`: ESP32-C3 & Enterprise AI Root-Cause Intelligence Platform
+# PyroTrace — Walkthrough & Implementation Progress
 
-We have built **`neuralX`**, an end-to-end AI system created for problem **AI-04: AI Anomaly Root-Cause Analyzer**.
-
----
-
-## 🏆 Key Features & Value Proposition
-
-1. **Live Sensor Monitoring via ESP32-C3 (RPM, Temperature, CPU Load)**:
-   - Tracks `esp32_cpu_load_pct`, `chip_temperature_c`, `motor_rpm_sensor`, `gpio_interrupt_lag_ms`, and `sensor_bus_voltage_v`.
-   - Includes Arduino C++ firmware sketch (`esp32_c3_firmware.ino`) and Python serial bridge (`src/hardware/esp32_bridge.py`).
-
-2. **Real-Time Anomaly Detection using Isolation Forest**:
-   - Ensembles Isolation Forest, PCA Reconstruction Error, and Rolling Z-Score bounds to isolate normal baseline vs anomaly state in real time.
-
-3. **Automated Root-Cause Chain Tracing (Not Just Alerts)**:
-   - Constructs a Directed Acyclic Graph (DAG) using Granger causality & Time-Lagged Cross-Correlation to map out the exact propagation chain ($A \rightarrow B \rightarrow C$).
-
-4. **Actionable Recommendations Alongside Diagnosis**:
-   - Generates plain-English XAI summaries, prescriptive action steps, and copyable bash/kubectl/SQL CLI runbook commands.
-
-5. **Fully Offline, On-Premises Dashboard (Streamlit + Plotly)**:
-   - Running locally at `http://127.0.0.1:8501`. Zero cloud calls, zero external API keys needed, 100% on-premises secure.
+PyroTrace is an edge-native, locally-processed AI diagnostic system designed to trace physical hardware failures back to their root cause in real time, operating entirely offline without cloud dependencies.
 
 ---
 
-## 🛠️ Codebase Structure
+## 🏆 Current Progress: Phase 1 & Phase 2 Complete
 
-```
-neuralX/
-├── app.py                            # Streamlit Interactive Web Application
-├── requirements.txt                  # Dependencies configuration
-├── WALKTHROUGH.md                    # System Walkthrough & Feature Guide
-├── IMPLEMENTATION_PLAN.md            # Technical Architecture Plan
-├── src/
-│   ├── __init__.py
-│   ├── engine/
-│   │   ├── __init__.py
-│   │   ├── anomaly_detector.py       # Isolation Forest + PCA SVD + Z-Score Anomaly Detector
-│   │   ├── causal_analyzer.py        # TLCC + Granger OLS Causality + Feature Attribution
-│   │   ├── data_loader.py            # Telemetry Ingestion & Preprocessing Manager
-│   │   ├── explanation_generator.py  # XAI Natural Language & Remediation Runbook Generator
-│   │   ├── root_cause_ranker.py      # Causal DAG Builder & Root Cause vs Symptom Ranker
-│   │   └── synthetic_generator.py    # ESP32-C3 & Enterprise Telemetry Generator
-│   └── hardware/
-│       └── esp32_bridge.py           # ESP32-C3 Live Serial Bridge & Firmware Sketch
-└── tests/
-    └── test_engine.py                # Automated Unit & Integration Test Suite
-```
+### Phase 1: Edge Hardware & Microcontroller Firmware (`firmware/esp32_telemetry/`)
+- **Microcontroller Target:** ESP32-C3 Super Mini
+- **C++ Firmware:** [`firmware/esp32_telemetry/esp32_telemetry.ino`](file:///c:/aa/wearegoingtoloose/wegoingtoloosefs/firmware/esp32_telemetry/esp32_telemetry.ino) & [`config.h`](file:///c:/aa/wearegoingtoloose/wegoingtoloosefs/firmware/esp32_telemetry/config.h)
+- **JSON Telemetry Stream:** Outputs `timestamp`, `temp` (°C), `rpm` (RPM), `cpu_load` (%), and `fault_mode` over USB Serial (`COM15`, 115200 baud).
+- **Interactive Fault Ingestion:** Includes live triggers for Normal, Thermal Spike, Fan Failure, and CPU Load Surge.
+
+### Phase 2: PySerial Data Ingestion Pipeline & Buffer (`src/ingestion.py`)
+- **Serial Connection:** Reads raw JSON telemetry from COM15 with PySerial.
+- **Hardware/Simulation Fallback:** Seamlessly switches to local synthetic sensor stream when COM15 hardware is disconnected.
+- **Rolling 60-Second Buffer:** Maintains a memory-stable Pandas DataFrame keeping strictly the last 60 seconds of telemetry data.
+- **Flat Memory Profile:** Prevents memory leaks and handles data rate spikes smoothly.
 
 ---
 
-## 🧪 Automated Test Verification
-
-All 6 unit and integration tests pass cleanly with **100% success**:
-
-```bash
-python -m pytest tests/test_engine.py
-```
+## 📁 Project Directory Structure
 
 ```text
-============================= test session starts =============================
-platform win32 -- Python 3.14.6, pytest-9.1.1
-collected 6 items
-
-tests\test_engine.py ......                                              [100%]
-
-============================== 6 passed in 4.72s ==============================
+wegoingtoloosefs/
+├── firmware/
+│   └── esp32_telemetry/
+│       ├── esp32_telemetry.ino        # C++ firmware sketch for ESP32-C3
+│       └── config.h                   # Pin definitions and thresholds
+├── src/
+│   ├── __init__.py                    # Source package initialization
+│   └── ingestion.py                   # Serial Ingestor & 60s Pandas Buffer Manager
+├── work_logs/
+│   └── PHASE_1_AND_2_COMPLETION.md    # Dedicated completion log for Phase 1 & 2
+├── Arctricute.md                      # System Architecture
+├── FILE_STRUCTURE.md                  # Detailed Folder Structure Specs
+├── IMPLEMENTATION_PLAN.md             # Master Roadmap (Phases 1-5)
+├── requirements.txt                   # Project Dependencies
+└── WALKTHROUGH.md                     # System Progress Walkthrough
 ```
 
 ---
 
-## 🌐 Live Web Application
+## 📝 Work Log Artifacts
 
-- **Primary URL (IPv4):** [http://127.0.0.1:8501](http://127.0.0.1:8501)
-- **Alternative URL:** [http://localhost:8501](http://localhost:8501)
+All finished milestones are logged in the dedicated work log directory:
+- [Phase 1 & 2 Completion Report](file:///c:/aa/wearegoingtoloose/wegoingtoloosefs/work_logs/PHASE_1_AND_2_COMPLETION.md)
