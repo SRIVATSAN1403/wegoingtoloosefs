@@ -40,8 +40,8 @@ def create_gauge_chart(value: float, min_val: float, max_val: float, title: str,
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        margin=dict(l=15, r=15, t=25, b=15),
-        height=130
+        margin=dict(l=10, r=10, t=35, b=15),
+        height=150
     )
     return fig
 

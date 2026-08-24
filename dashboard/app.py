@@ -179,24 +179,24 @@ st.markdown("""
         }
 
         /* Pill Buttons */
-        .pill-badge {
-            background-color: #17191c;
+        .stApp span.pill-badge {
+            background-color: #17191c !important;
             color: #ffffff !important;
-            border-radius: 9999px;
-            padding: 6px 16px;
-            font-size: 13px;
-            font-weight: 400;
-            display: inline-block;
+            border-radius: 9999px !important;
+            padding: 6px 16px !important;
+            font-size: 13px !important;
+            font-weight: 400 !important;
+            display: inline-block !important;
         }
-        .pill-badge-ghost {
-            background-color: transparent;
+        .stApp span.pill-badge-ghost {
+            background-color: transparent !important;
             color: #17191c !important;
-            border: 1px solid #17191c;
-            border-radius: 9999px;
-            padding: 6px 16px;
-            font-size: 13px;
-            font-weight: 400;
-            display: inline-block;
+            border: 1px solid #17191c !important;
+            border-radius: 9999px !important;
+            padding: 6px 16px !important;
+            font-size: 13px !important;
+            font-weight: 400 !important;
+            display: inline-block !important;
         }
 
         /* Sidebar Styling */
