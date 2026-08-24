@@ -4,19 +4,23 @@ PyroTrace is an edge-native, locally-processed AI diagnostic system designed to 
 
 ---
 
-## 🏆 Current Progress: Phase 1 & Phase 2 Complete
+## 🏆 Completed Phases (Phases 1 - 4 Complete)
 
 ### Phase 1: Edge Hardware & Microcontroller Firmware (`firmware/esp32_telemetry/`)
-- **Microcontroller Target:** ESP32-C3 Super Mini
+- **Target:** ESP32-C3 Super Mini
 - **C++ Firmware:** [`firmware/esp32_telemetry/esp32_telemetry.ino`](file:///c:/aa/wearegoingtoloose/wegoingtoloosefs/firmware/esp32_telemetry/esp32_telemetry.ino) & [`config.h`](file:///c:/aa/wearegoingtoloose/wegoingtoloosefs/firmware/esp32_telemetry/config.h)
 - **JSON Telemetry Stream:** Outputs `timestamp`, `temp` (°C), `rpm` (RPM), `cpu_load` (%), and `fault_mode` over USB Serial (`COM15`, 115200 baud).
-- **Interactive Fault Ingestion:** Includes live triggers for Normal, Thermal Spike, Fan Failure, and CPU Load Surge.
 
 ### Phase 2: PySerial Data Ingestion Pipeline & Buffer (`src/ingestion.py`)
-- **Serial Connection:** Reads raw JSON telemetry from COM15 with PySerial.
-- **Hardware/Simulation Fallback:** Seamlessly switches to local synthetic sensor stream when COM15 hardware is disconnected.
-- **Rolling 60-Second Buffer:** Maintains a memory-stable Pandas DataFrame keeping strictly the last 60 seconds of telemetry data.
-- **Flat Memory Profile:** Prevents memory leaks and handles data rate spikes smoothly.
+- **Ingestion Engine:** Reads raw telemetry from COM15 with PySerial and maintains a rolling 60-second Pandas DataFrame buffer.
+- **Hardware/Simulation Fallback:** Automatically engages local synthetic sensor stream when physical COM15 port is disconnected.
+
+### Phase 3: AI Detection & Causal Engine (`src/anomaly_detection.py`, `src/causal_tracing.py`)
+- **Isolation Forest Anomaly Detector:** Scans rolling 60-second buffer data to detect hardware threshold breaches and statistical outliers.
+- **Time-Lagged Causal Tracing Engine:** Analyzes time lags and sequence ordering to map the root cause ($A \rightarrow B \rightarrow C$) and output prescriptive remediation instructions.
+
+### Phase 4: Streamlit & Plotly Presentation Layer (`dashboard/app.py`, `dashboard/visualizations.py`)
+- **Interactive Dark Dashboard:** Live telemetry feeds, status badges, KPI metric cards, Plotly multi-axis line graphs, gauge meters, horizontal causal chain diagrams, and physical fault injection controls.
 
 ---
 
@@ -30,12 +34,21 @@ wegoingtoloosefs/
 │       └── config.h                   # Pin definitions and thresholds
 ├── src/
 │   ├── __init__.py                    # Source package initialization
-│   └── ingestion.py                   # Serial Ingestor & 60s Pandas Buffer Manager
+│   ├── ingestion.py                   # Serial Ingestor & 60s Pandas Buffer Manager
+│   ├── anomaly_detection.py           # Isolation Forest Anomaly Detector
+│   └── causal_tracing.py              # Time-Lagged Causal Root Cause Engine
+├── dashboard/
+│   ├── __init__.py
+│   ├── app.py                         # Streamlit Interactive Dashboard
+│   ├── visualizations.py              # Plotly Visualizations & Causal Graphs
+│   └── assets/
+│       └── style.css                  # Dark Theme CSS
 ├── work_logs/
-│   └── PHASE_1_AND_2_COMPLETION.md    # Dedicated completion log for Phase 1 & 2
+│   ├── PHASE_1_AND_2_COMPLETION.md    # Work Log for Phase 1 & 2
+│   └── PHASE_3_AND_4_COMPLETION.md    # Work Log for Phase 3 & 4
 ├── Arctricute.md                      # System Architecture
 ├── FILE_STRUCTURE.md                  # Detailed Folder Structure Specs
-├── IMPLEMENTATION_PLAN.md             # Master Roadmap (Phases 1-5)
+├── IMPLEMENTATION_PLAN.md             # Master Roadmap
 ├── requirements.txt                   # Project Dependencies
 └── WALKTHROUGH.md                     # System Progress Walkthrough
 ```
@@ -44,5 +57,15 @@ wegoingtoloosefs/
 
 ## 📝 Work Log Artifacts
 
-All finished milestones are logged in the dedicated work log directory:
 - [Phase 1 & 2 Completion Report](file:///c:/aa/wearegoingtoloose/wegoingtoloosefs/work_logs/PHASE_1_AND_2_COMPLETION.md)
+- [Phase 3 & 4 Completion Report](file:///c:/aa/wearegoingtoloose/wegoingtoloosefs/work_logs/PHASE_3_AND_4_COMPLETION.md)
+
+---
+
+## 🚀 Running the Application
+
+To launch the dashboard locally:
+```bash
+streamlit run dashboard/app.py
+```
+Open your browser at `http://localhost:8501`.
