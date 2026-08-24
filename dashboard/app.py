@@ -54,6 +54,49 @@ st.markdown("""
             font-family: 'Inter', sans-serif !important;
         }
 
+        /* FORCE ALL TEXT DARK — override Streamlit dark theme */
+        .stApp, .stApp p, .stApp span, .stApp div, .stApp label,
+        .stApp li, .stApp td, .stApp th, .stApp caption,
+        .stMarkdown, .stMarkdown p, .stMarkdown span,
+        [data-testid="stText"], [data-testid="stMarkdownContainer"],
+        [data-testid="stMarkdownContainer"] p,
+        [data-testid="stMarkdownContainer"] span,
+        [data-testid="stMarkdownContainer"] li,
+        [data-testid="stCaptionContainer"],
+        [data-testid="stCaptionContainer"] p,
+        .stRadio label, .stCheckbox label,
+        .stSelectbox label, .stTextInput label {
+            color: #17191c !important;
+        }
+
+        /* Sidebar text */
+        section[data-testid="stSidebar"] p,
+        section[data-testid="stSidebar"] span,
+        section[data-testid="stSidebar"] label,
+        section[data-testid="stSidebar"] div,
+        section[data-testid="stSidebar"] li,
+        section[data-testid="stSidebar"] h1,
+        section[data-testid="stSidebar"] h2,
+        section[data-testid="stSidebar"] h3 {
+            color: #17191c !important;
+        }
+
+        /* Captions should be muted slate gray */
+        .stApp small, [data-testid="stCaptionContainer"] small,
+        [data-testid="stCaptionContainer"] p {
+            color: #777b86 !important;
+        }
+
+        /* Metric delta text */
+        div[data-testid="stMetricDelta"] {
+            color: #777b86 !important;
+        }
+
+        /* Subplot titles in Plotly */
+        .stPlotlyChart text {
+            fill: #17191c !important;
+        }
+
         /* Headers - Serif Signifier Style */
         h1, h2, h3, .serif-heading {
             font-family: 'Source Serif 4', Georgia, serif !important;
